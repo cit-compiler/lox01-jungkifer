@@ -101,14 +101,20 @@ public class Scanner {
             break;
 
             default:
-            Lox.error(line,"Unexpected character");
             if (isDigit(c)) {
                 number();
               }
              else if (isAlpha(c)) {
                 identifier();
              } else {
-                Lox.error(line, "Unexpected character.");
+                if (isDigit(c)){
+                  number();
+                }else if (isAlpha(c)){
+                  identifier();
+                }else{
+                  Lox.error(line, "Unexpected character");
+                }
+                break;
               }
       
             break;
@@ -141,24 +147,33 @@ public class Scanner {
         addToken(NUMBER,
             Double.parseDouble(source.substring(start, current)));
       }
-    private void string() {
-        while (peek() != '"' && !isAtEnd()) {
-          if (peek() == '\n') line++;
-          advance();
+      private void string() {
+        while (!isAtEnd()) {
+            if (peek() == '\n'){
+                line++;
+            }
+
+            if (peek() == '\\' && peekNext() == '"'){
+                advance();
+                advance();
+            }else if (peek() == '"'){
+                break;
+            }else{
+                advance();
+            }
+
+            
         }
-    
+
         if (isAtEnd()) {
-          Lox.error(line, "Unterminated string.");
-          return;
+            Lox.error(line, "Unterminated string.");
+            return;
         }
-    
-        // The closing ".
         advance();
-    
-        // Trim the surrounding quotes.
+
         String value = source.substring(start + 1, current - 1);
-        addToken(STRING, value);
-      }
+        addToken(STRING, value.replace("\\\"", "\""));
+    }
 
     private boolean match(char expected){
         if(isAtEnd()) return false;
@@ -205,3 +220,5 @@ public class Scanner {
         tokens.add(new Token(type,text,literal,line));
     }
 }
+
+

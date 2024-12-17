@@ -48,7 +48,7 @@ public class Lox {
       for (Token token : tokens) {
         System.out.println(token);
       }
-      //System.out.println(source);
+      System.out.println(source);
     }
 
     static  void  error ( int  line , String  message ) {
